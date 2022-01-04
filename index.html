@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard | Hidroponik</title>
+        <link rel="stylesheet" href="./css/stylesheet.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="javascript/api.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class = "container">
+                <div class = "header-left">
+                    <p class = "logo">Hidroponik</p>
+                </div>
+            </div>
+        </header>
+
+        <div class = "main">
+            <div class = "container">
+                <div class = "valueCard-wrapper">
+                    <p>Data Parameter</p>
+                        <div class = "valueCard suhu-color">
+                            <p>Suhu</p>
+                            <i class = "material-icons md-48">device_thermostat</i>
+                            <div class = "value_suhu"></div>
+                            <div class = "state_suhu"></div>
+                        </div>
+                        <div class = "valueCard ph-color">
+                            <p>pH</p>
+                            <i class = "material-icons md-48">water_drop</i>
+                            <div class = "value_ph"></div>
+                            <div class = "state_ph"></div>
+                        </div>
+                        <div class = "valueCard konsentrasiNutrisi-color">
+                            <p>Konsentrasi Nutrisi</p>
+                            <i class="fas fa-seedling"></i>
+                            <div class = "value_konsentrasiNutrisi"></div>
+                            <div class = "state_konsentrasiNutrisi"></div>
+                        </div>
+                </div>
+                <div class = graph-wrapper>
+                    <p>Grafik Parameter</p>
+                    <div class = "container-graph">
+                        <iframe class = "graph" src="https://api.thingspeak.com/channels/1505876/charts/1?bgcolor=%23ffffff&color=%2364dd17&dynamic=true&update=2&results=50&title=pH&type=line&xaxis=Waktu&yaxis=pH&width=auto"></iframe>
+                    </div>
+                    <div class = "container-graph">
+                        <iframe class = "graph" src="https://api.thingspeak.com/channels/1505876/charts/2?bgcolor=%23ffffff&color=%2364dd17&dynamic=true&update=2&results=50&title=Suhu&type=line&xaxis=Waktu&yaxis=Celcius&width=auto"></iframe>
+                    </div>
+                    <div class = "container-graph">
+                        <iframe class = "graph" src="https://api.thingspeak.com/channels/1505876/charts/3?bgcolor=%23ffffff&color=%2364dd17&dynamic=true&update=2&results=50&title=Konsentrasi Nutrisi&type=line&xaxis=Waktu&yaxis=ppm&width=auto"></iframe>
+                    </div>
+                </div>
+
+                <div class = "status-wrapper">
+                    <p>Status Parameter</p>
+                    <div class = "container-status">
+                        <iframe class = "status" src="https://api.thingspeak.com/channels/1505876/status/recent?timezone=Asia%2FJakarta"></iframe>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Masukkan data -->
+        <script>
+            var phValue;
+            var suhuValue;
+            var konsentrasiNutrisiValue;
+            var phStatus;
+            var suhuStatus;
+            var konsentrasiNutrisiStatus;
+
+            $(document).ready(function () {
+            setInterval(function () {
+            $.getJSON('https://api.thingspeak.com/channels/1505876/feeds/last.json?', function(data) {
+                phValue = data.field1;
+                $(".value_ph").html((parseFloat(phValue)).toFixed(2));
+                if (phValue < 6.00) {
+                    $(".state_ph").html('Rendah');
+                    $(".ph-color").css('background-color', '#BFD200');
+                } else if(phValue > 6.7) {
+                    $(".state_ph").html('Tinggi');
+                    $(".ph-color").css('background-color', '#FF1654');
+                } else if (phValue >= 6.0 && phValue <= 6.7) {
+                    $(".state_ph").html('Normal');
+                    $(".ph-color").css('background-color', '#007F5F');
+                }
+            });
+
+            $.getJSON('https://api.thingspeak.com/channels/1505876/feeds/last.json?', function(data) {
+                suhuValue = data.field2;
+                $(".value_suhu").html((parseFloat(suhuValue)).toFixed(2) + '°C');
+                if (suhuValue < 20.00) {
+                    $(".state_suhu").html('Rendah');
+                    $(".suhu-color").css('background-color', '#BFD200');
+                } else if(suhuValue > 32.00) {
+                    $(".state_suhu").html('Tinggi');
+                    $(".suhu-color").css('background-color', '#FF1654');
+                } else if (suhuValue >= 20.0 && suhuValue <= 32.00) {
+                    $(".state_suhu").html('Normal');
+                    $(".suhu-color").css('background-color', '#007F5F');
+                }
+            });
+
+            $.getJSON('https://api.thingspeak.com/channels/1505876/feeds/last.json?', function(data) {
+                konsentrasiNutrisiValue = data.field3;
+                $(".value_konsentrasiNutrisi").html((parseFloat(konsentrasiNutrisiValue)).toFixed(0) + ' ppm');
+                if (konsentrasiNutrisiValue < 980.00) {
+                    $(".state_konsentrasiNutrisi").html('Rendah');
+                    $(".konsentrasiNutrisi-color").css('background-color', '#BFD200');
+                } else if(konsentrasiNutrisiValue > 1260.00) {
+                    $(".state_konsentrasiNutrisi").html('Tinggi');
+                    $(".konsentrasiNutrisi-color").css('background-color', '#FF1654');
+                } else if (konsentrasiNutrisiValue >= 980.0 && konsentrasiNutrisiValue <= 1260.00) {
+                    $(".state_konsentrasiNutrisi").html('Normal');
+                    $(".konsentrasiNutrisi-color").css('background-color', '#007F5F');
+
+                }
+            });
+            }, 10000);
+            }); 
+        </script>  
+    </body>
+</html>
+
